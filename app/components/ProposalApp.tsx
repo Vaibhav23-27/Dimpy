@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import Image from "next/image";
 
 type Screen = "main" | "no-response" | "last-chance" | "yes";
@@ -21,14 +21,16 @@ const NO_RESPONSES = [
   { message: "Seeeeee, lazy mornings and happy youuu ✨", subtext: "Every corner of this world, with you 🌍",           image: "/bohemiaPicture.jpeg", imageAlt: "Bohemia together" },
 ];
 
+const ALL_IMAGES = [...NO_RESPONSES.map((r) => r.image), "/GzbHome.jpeg"];
+
 const FLOATING_HEARTS = ["💕", "🌸", "✨", "💖", "🌺", "💗", "🌷", "💝", "⭐", "🦋"];
 
 export default function ProposalApp() {
   const [screen, setScreen] = useState<Screen>("main");
   const [noCount, setNoCount] = useState(0);
-  const [noPos, setNoPos] = useState({ x: 0, y: 0 });
+
   const [showConfetti, setShowConfetti] = useState(false);
-  const noBtnRef = useRef<HTMLButtonElement>(null);
+
 
   const handleYes = useCallback(() => {
     setScreen("yes");
@@ -38,26 +40,12 @@ export default function ProposalApp() {
   const handleNo = useCallback(() => {
     const next = noCount + 1;
     setNoCount(next);
-    setNoPos({ x: 0, y: 0 });
     if (next >= NO_RESPONSES.length) {
       setScreen("last-chance");
     } else {
       setScreen("no-response");
     }
   }, [noCount]);
-
-  const handleNoHover = useCallback(() => {
-    const btn = noBtnRef.current;
-    if (!btn) return;
-    const parent = btn.parentElement;
-    if (!parent) return;
-    const maxX = parent.offsetWidth - btn.offsetWidth;
-    const maxY = parent.offsetHeight - btn.offsetHeight;
-    setNoPos({
-      x: Math.random() * maxX - maxX / 2,
-      y: Math.random() * maxY - maxY / 2,
-    });
-  }, []);
 
   const currentResponse = NO_RESPONSES[Math.min(noCount, NO_RESPONSES.length - 1)];
 
@@ -68,7 +56,13 @@ export default function ProposalApp() {
     null;
 
   return (
-    <div className="relative min-h-dvh flex items-end justify-center overflow-hidden">
+    <div className={`relative min-h-dvh flex justify-center overflow-hidden ${currentResponse.image === "/WalletPicture.jpeg" && screen === "no-response" ? "items-start" : "items-end"}`}>
+      {/* Preload all images silently so there's no lag on first show */}
+      <div className="hidden" aria-hidden>
+        {ALL_IMAGES.map((src) => (
+          <Image key={src} src={src} alt="" fill priority sizes="1px" />
+        ))}
+      </div>
 
       {/* ── BACKGROUND ── */}
       {bgImage ? (
@@ -138,8 +132,8 @@ export default function ProposalApp() {
         </div>
       )}
 
-      {/* ── CONTENT (anchored to bottom so image is visible above) ── */}
-      <div className="relative z-10 w-full max-w-sm px-4 pb-10">
+      {/* ── CONTENT (anchored to bottom so image is visible above, top for wallet) ── */}
+      <div className={`relative z-10 w-full max-w-sm px-4 ${currentResponse.image === "/WalletPicture.jpeg" && screen === "no-response" ? "pt-10" : "pb-10"}`}>
 
         {/* ── MAIN SCREEN ── */}
         {screen === "main" && (
@@ -161,13 +155,7 @@ export default function ProposalApp() {
                 Yes! 💕
               </button>
               <button
-                ref={noBtnRef}
                 onClick={handleNo}
-                onMouseEnter={handleNoHover}
-                style={{
-                  transform: `translate(${noPos.x}px, ${noPos.y}px)`,
-                  transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-                }}
                 className="font-nunito font-semibold text-lg px-7 py-3 rounded-full bg-white/80 text-rose-400 border-2 border-rose-200 shadow hover:bg-rose-50 active:scale-95 select-none"
               >
                 No 🙈
@@ -198,13 +186,7 @@ export default function ProposalApp() {
                 Yes! 💕
               </button>
               <button
-                ref={noBtnRef}
                 onClick={handleNo}
-                onMouseEnter={handleNoHover}
-                style={{
-                  transform: `translate(${noPos.x}px, ${noPos.y}px)`,
-                  transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-                }}
                 className="font-nunito font-semibold text-lg px-7 py-3 rounded-full bg-white/30 backdrop-blur-sm text-white border-2 border-white/50 shadow hover:bg-white/40 active:scale-95 select-none"
               >
                 No 🙈
