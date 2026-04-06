@@ -166,11 +166,11 @@ export default function ProposalApp() {
 
         {/* ── NO RESPONSE SCREEN ── */}
         {screen === "no-response" && (
-          <div className="flex flex-col items-center gap-4 text-center">
+          <div key={noCount} className="flex flex-col items-center gap-4 text-center">
             <div className="text-5xl animate-wiggle select-none">🧸</div>
 
             <div className="bg-white/20 backdrop-blur-md rounded-3xl px-5 py-4 shadow-xl border border-white/40 w-full">
-              <p className="font-dancing text-2xl font-bold text-white drop-shadow mb-1">
+              <p className="font-nunito text-2xl font-bold text-white drop-shadow mb-1">
                 {currentResponse.message}
               </p>
               <p className="font-nunito text-white/90 text-base drop-shadow">
